@@ -4,6 +4,12 @@ Command-line parser for [Topogram](http://github.com/topogram/topogram).
 
 Use a YAML file to describe data source and workflow
 
+## Install 
+
+    virtualenv venv
+    . venv/bin/activate
+    pip install -r requirements.txt
+
 ## Usage
 
 Use the command line to call a YAML file containing the parsing instructions  
