@@ -1,0 +1,55 @@
+corpora : 
+    - content:
+        type : csv
+        file : 'examples/sampleweibo.csv'
+        columns: 
+            source : uid
+            text : text
+            timestamp : created_at
+            time_pattern : '%Y-%m-%d %H:%M:%S'
+            data : [ permission_denied, deleted_last_seen ]
+    - users: 
+        type : csv_nodes
+        file : 'users.csv'
+        columns: 
+            ref: uid
+            geo : geo
+            data : [ name, profile_url ]
+
+process: 
+    content.text : 
+        - hashtags :
+            regexp: '#([^#\s]+)#'
+            type : exclude
+        - mentions : 
+            regexp : '@([^:：,，\)\(（）|\\\s]+)'
+            type : save 
+        - urls: 
+            regexp : '\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^\p{P}\s]|/)))'
+            type : exclude
+        - words :
+            nlp : "zh"
+            type : pipe
+        - words_relationships :
+            graph: add_edges_from_nodes_list
+            type : save
+
+    users.geo:
+        - coordinates : 
+            geocode : bing
+            type : save
+    content.source : 
+        - uid : 
+            match: users.ref
+            type : save
+
+viz :
+    map : 
+        data : users.geo.coordinates
+    network : 
+        nodes : content.text.words
+        edges : content.text.words.words_relationships
+    network_map : 
+        nodes : users
+        edges : content.mentions
+        geo : users.geo.coordinates

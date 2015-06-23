@@ -1,0 +1,35 @@
+corpora : 
+    - gigs:
+        type : json
+        file : ~/Dev/bandstour/data/artists/*.json
+        columns: 
+            source : id
+            text : artists
+            timestamp : datetime
+            time : '%Y-%m-%dT%H:%M:%S'
+    - venues :
+        type : json
+        file : ~/Dev/bandstour/data/artists/*.json
+        columns:
+            geo :
+                lat : venue.latitude
+                lng : venue.longitude
+            ref : id
+            add: venue
+
+process: 
+    gigs : 
+        - tours :
+            run: topogram.processors.interpolate_by_time
+            type : save
+
+viz :
+    map : 
+        data : venues.geo
+    network : 
+        nodes : gigs
+        edges : tours
+    network_map : 
+        nodes : gigs
+        edges : tours
+        geo : venues.geo
